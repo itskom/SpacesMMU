@@ -108,11 +108,21 @@ export function MapView({
         markerEl.style.cursor = "pointer";
         markerEl.style.boxShadow = "0 0 0 2px rgba(0,0,0,0.25)";
 
+        // Create a popup for the marker
+        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
+          <div>
+            <h3 style=\"margin: 0; font-size: 14px; font-weight: bold;\">${space.name}</h3>
+            <p style=\"margin: 0; font-size: 12px;\">Rating: ${space.rating}</p>
+            <p style=\"margin: 0; font-size: 12px;\">Nearest Station: ${space.nearestStation}</p>
+          </div>
+        `);
+
         const marker = new mapboxgl.Marker({
           element: markerEl,
           anchor: "center",
         })
           .setLngLat(space.coordinates)
+          .setPopup(popup) // Attach the popup to the marker
           .addTo(map3D);
 
         marker.getElement().addEventListener("click", () => {

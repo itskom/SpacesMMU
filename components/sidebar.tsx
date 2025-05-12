@@ -1,3 +1,4 @@
+// Cleaned up and added comments for better readability and explanation
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { StudySpaceCard } from "@/components/study-space-card";
@@ -9,13 +10,13 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
 interface SidebarProps {
-  spaces: StudySpace[];
-  onSpaceSelect: (spaceId: string) => void;
-  currentTime: Date;
-  isOpen: boolean;
-  onClose: () => void;
-  userLocation: [number, number] | null;
-  nearestSpace: StudySpace | null;
+  spaces: StudySpace[]; // List of study spaces
+  onSpaceSelect: (spaceId: string) => void; // Callback when a space is selected
+  currentTime: Date; // Current time for filtering open spaces
+  isOpen: boolean; // Whether the sidebar is open
+  onClose: () => void; // Callback to close the sidebar
+  userLocation: [number, number] | null; // User's current location
+  nearestSpace: StudySpace | null; // Nearest study space to the user
 }
 
 export function Sidebar({
@@ -27,9 +28,11 @@ export function Sidebar({
   userLocation,
   nearestSpace,
 }: SidebarProps) {
+  // State for search query and filter toggle
   const [searchQuery, setSearchQuery] = useState("");
   const [showOpenOnly, setShowOpenOnly] = useState(false);
 
+  // Format the current time for display
   const formattedTime = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/London",
     weekday: "short",
@@ -41,6 +44,7 @@ export function Sidebar({
     hour12: false,
   }).format(currentTime);
 
+  // Handle space selection and close sidebar on small screens
   const handleSpaceClick = (spaceId: string) => {
     onSpaceSelect(spaceId);
     if (window.innerWidth < 768) {
@@ -48,11 +52,12 @@ export function Sidebar({
     }
   };
 
+  // Calculate distance between two coordinates using Haversine formula
   const calculateDistance = (
     coord1: [number, number],
     coord2: [number, number]
   ): number => {
-    const R = 6371; // Radius of the Earth in kilometers
+    const R = 6371; // Earth's radius in kilometers
     const lat1 = (coord1[1] * Math.PI) / 180;
     const lat2 = (coord2[1] * Math.PI) / 180;
     const lon1 = (coord1[0] * Math.PI) / 180;
@@ -65,11 +70,10 @@ export function Sidebar({
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c;
-
-    return distance;
+    return R * c;
   };
 
+  // Sort spaces by proximity to the user's location
   const sortedSpaces = userLocation
     ? [...spaces].sort(
         (a, b) =>
@@ -78,6 +82,7 @@ export function Sidebar({
       )
     : spaces;
 
+  // Filter spaces based on search query and open status
   const filteredSpaces = sortedSpaces.filter(
     (space) =>
       space.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -86,53 +91,49 @@ export function Sidebar({
 
   return (
     <div
-      className={`fixed inset-y-4 left-0 z-50 w-[calc(95%-2rem)] max-w-[400px] sm:w-[420px] bg-gradient-to-b from-blue-900/10 to-blue-800/20 backdrop-blur-lg backdrop-filter border border-blue-500/10 shadow-2xl rounded-2xl transform transition-transform duration-300 ease-in-out ${
+      className={`fixed inset-y-4 left-0 z-50 w-[calc(95%-2rem)] max-w-[400px] sm:w-[420px] transition-transform duration-300 ease-in-out transform rounded-2xl shadow-xl border border-white/10 bg-gradient-to-br from-blue-900/60 to-blue-800/40 backdrop-blur-2xl ${
         isOpen ? "translate-x-4" : "-translate-x-full"
       }`}
     >
-      <div className="flex flex-col h-full bg-white/5 overflow-hidden">
-        <div className="p-4 sm:p-6 border-b border-blue-500/10 space-y-4 bg-blue-900/20 backdrop-blur-md">
+      <div className="flex flex-col h-full overflow-hidden">
+        {/* HEADER */}
+        <div className="p-4 sm:p-6 border-b border-white/10 bg-blue-950/50">
           <div className="flex justify-between items-center">
-            <div>
-              <a
-                href="https://www.linkedin.com/in/komchanmather/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 font-semibold text-2xl text-white hover:text-blue-200 transition-colors"
-              >
-                <div className="relative w-8 h-8 bg-blue-500 rounded-lg shadow-lg overflow-hidden">
-                  {" "}
-                  {/* Changed background to blue */}
-                  <div className="absolute inset-0.5 bg-blue-700 rounded-md shadow-inner"></div>{" "}
-                  {/* Changed background to darker blue */}
-                  <MapPinned className="absolute inset-1 w-6 h-6 text-white drop-shadow-md" />
-                </div>
-                <h1 className="text-white">SpacesMMU</h1>
-              </a>
-              <p className="text-sm text-blue-200 mt-1">
-                Find the best study spaces near you
-              </p>
+            <div className="flex gap-3 items-center">
+              <div className="relative w-9 h-9 bg-blue-600 rounded-lg shadow-md">
+                <MapPinned className="absolute inset-1 w-7 h-7 text-white drop-shadow" />
+              </div>
+              <div>
+                <h1 className="text-xl font-semibold text-white">SpacesMMU</h1>
+                <p className="text-sm text-blue-200">
+                  Find the best study spaces near you
+                </p>
+              </div>
             </div>
-            <div className="relative w-10 h-10">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onClose}
-                className="text-white hover:bg-blue-800/50 md:hidden absolute inset-0 flex items-center justify-center"
-              >
-                <X className="h-8 w-8 stroke-[3]" />
-                <span className="sr-only">Close sidebar</span>
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="text-white hover:bg-blue-700/50 md:hidden"
+            >
+              <X className="h-6 w-6" />
+              <span className="sr-only">Close sidebar</span>
+            </Button>
           </div>
-          <Input
-            placeholder="Search spaces..."
-            className="bg-white/50 border-blue-500/20 text-white placeholder-white/50 focus:bg-white/20 transition-all duration-300 rounded-lg"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+
+          {/* Search Input */}
+          <div className="mt-4">
+            <Input
+              placeholder="Search spaces..."
+              className="bg-white/10 border border-white/20 text-white placeholder-white focus:ring-2 focus:ring-blue-400 focus:outline-none rounded-md"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          {/* Filter Toggle */}
+          <div className="flex items-center justify-between mt-3">
+            <div className="flex items-center gap-2">
               <Switch
                 id="open-filter"
                 checked={showOpenOnly}
@@ -142,12 +143,14 @@ export function Sidebar({
                 Show open only
               </Label>
             </div>
-            <span className="text-sm text-blue-100/80 font-bold">
+            <span className="text-sm text-blue-100 font-mono">
               {formattedTime}
             </span>
           </div>
         </div>
-        <div className="flex-1 overflow-auto p-4 sm:p-6 space-y-4 custom-scrollbar bg-blue-800/5 backdrop-blur-sm">
+
+        {/* CARD LIST */}
+        <div className="flex-1 overflow-auto p-4 sm:p-6 space-y-4 custom-scrollbar bg-blue-800/10">
           {filteredSpaces.map((space) => (
             <StudySpaceCard
               key={space.id}
@@ -161,43 +164,42 @@ export function Sidebar({
                   : undefined
               }
               isNearest={space.id === nearestSpace?.id}
+              className={`
+                transition-all duration-300 border rounded-xl shadow-md
+                ${
+                  isSpaceOpen(space, currentTime)
+                    ? "bg-green-500/20 border-green-500"
+                    : "bg-red-500/20 border-red-500"
+                }
+                ${
+                  space.id === nearestSpace?.id
+                    ? "border-purple-500 shadow-lg"
+                    : ""
+                }
+              `}
             />
           ))}
         </div>
       </div>
+
+      {/* Scrollbar Styling */}
       <style jsx global>{`
         .custom-scrollbar {
           scrollbar-width: thin;
-          scrollbar-color: rgba(59, 130, 246, 0.5) rgba(59, 130, 246, 0.1);
+          scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
         }
         .custom-scrollbar::-webkit-scrollbar {
           width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(59, 130, 246, 0.1);
-          border-radius: 3px;
+          background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: rgba(59, 130, 246, 0.5);
+          background-color: rgba(255, 255, 255, 0.3);
           border-radius: 3px;
-          border: 2px solid rgba(59, 130, 246, 0.1);
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background-color: rgba(59, 130, 246, 0.7);
-        }
-      `}</style>
-      <style jsx>{`
-        .relative > button::before {
-          content: "";
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 32px;
-          height: 32px;
-          background-color: rgba(255, 255, 255, 0.2);
-          border-radius: 50%;
-          z-index: -1;
+          background-color: rgba(255, 255, 255, 0.5);
         }
       `}</style>
     </div>
