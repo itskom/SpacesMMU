@@ -24,7 +24,7 @@ SpacesMMU helps you quickly find the best study spaces across campus, no more gu
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/spacesmmu.git
+git clone https://github.com/itskom/spacesmmu.git
 cd spacesmmu
 ```
 
