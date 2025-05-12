@@ -18,6 +18,7 @@ interface StudySpaceCardProps {
   currentTime: Date;
   distance?: number;
   isNearest?: boolean;
+  className?: string;
 }
 
 export function StudySpaceCard({
